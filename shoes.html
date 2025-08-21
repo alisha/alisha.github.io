@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoe Store</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-    <!-- This page should run on a different domain than the other 2 pages -->
+    <!-- This page runs on alisha.github.io -->
     <div class="container">
         <header>
             <h1>Welcome to Our Shoe Store</h1>
@@ -49,8 +49,13 @@
             
             links.forEach(link => {
                 if (link.href.includes('alishaukani.com/llm/shoes')) {
-                    // For alishaukani.com/llm/shoes, use category as folder path
-                    link.href = `https://alishaukani.com/llm/shoes/${category}/dress-shoes.html`;
+                    if (category === 'cert') {
+                        // For cert category, use subdomain format
+                        link.href = `https://shoes.alishaukani.com/dress-shoes.html?category=cert`;
+                    } else {
+                        // For other categories, use category as folder path
+                        link.href = `https://alishaukani.com/llm/shoes/${category}/dress-shoes.html`;
+                    }
                 } else {
                     // For other links, use query parameter
                     const url = new URL(link.href);
