@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoe Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- This page should run on a different domain than the other 2 pages -->
+    <div class="container">
+        <header>
+            <h1>Welcome to Our Shoe Store</h1>
+            <p>Discover our collection of quality footwear</p>
+        </header>
+        
+        <main class="shoe-grid">
+            <div class="shoe-card">
+                <div class="shoe-image">
+                    <div class="placeholder-image">👟</div>
+                </div>
+                <h2>Classic Sneakers</h2>
+                <p>Comfortable everyday sneakers perfect for casual wear</p>
+                <a href="https://peteresnyder.com/tests/shoes/sneakers.html" class="view-btn">View Details</a>
+            </div>
+            
+            <div class="shoe-card">
+                <div class="shoe-image">
+                    <div class="placeholder-image">👞</div>
+                </div>
+                <h2>Formal Dress Shoes</h2>
+                <p>Elegant leather shoes for formal occasions</p>
+                <a href="https://alishaukani.com/llm/shoes/dress-shoes.html" class="view-btn">View Details</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Get the category query parameter with default value "control"
+        function getCategoryParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('category') || 'control';
+        }
+
+        // Update all links to include the category parameter
+        function updateLinksWithCategory() {
+            const category = getCategoryParam();
+            const links = document.querySelectorAll('a.view-btn');
+            
+            links.forEach(link => {
+                if (link.href.includes('alishaukani.com/llm/shoes')) {
+                    // For alishaukani.com/llm/shoes, use category as folder path
+                    link.href = `https://alishaukani.com/llm/shoes/${category}/dress-shoes.html`;
+                } else {
+                    // For other links, use query parameter
+                    const url = new URL(link.href);
+                    url.searchParams.set('category', category);
+                    link.href = url.toString();
+                }
+            });
+        }
+
+        // Execute when the page loads
+        document.addEventListener('DOMContentLoaded', updateLinksWithCategory);
+    </script>
+</body>
+</html>
