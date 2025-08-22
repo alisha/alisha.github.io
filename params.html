@@ -34,12 +34,12 @@
             background-color: #f9f9f9;
         }
         .parameter.found {
-            border-color: #f44336;
-            background-color: #ffebee;
-        }
-        .parameter.not-found {
             border-color: #4CAF50;
             background-color: #e8f5e9;
+        }
+        .parameter.not-found {
+            border-color: #f44336;
+            background-color: #ffebee;
         }
         .param-name {
             font-weight: bold;
@@ -58,10 +58,10 @@
             font-weight: bold;
         }
         .status.found {
-            background-color: #f44336;
+            background-color: #4CAF50;
         }
         .status.not-found {
-            background-color: #4CAF50;
+            background-color: #f44336;
         }
         .current-url {
             background-color: #e3f2fd;
@@ -96,8 +96,14 @@
     </div>
 
     <script>
-        // Parameters to check for
-        const parametersToCheck = ['fbclid', 'q', 'fb_source', 'utm_source', 'utm_medium'];
+        // Parameters to check for - 'q' should be present, others should NOT be present
+        const parametersToCheck = [
+            { name: 'q', shouldBePresent: true },
+            { name: 'fbclid', shouldBePresent: false },
+            { name: 'fb_source', shouldBePresent: false },
+            { name: 'utm_source', shouldBePresent: false },
+            { name: 'utm_medium', shouldBePresent: false }
+        ];
         
         // Get current URL and parse query parameters
         const currentUrl = window.location.href;
@@ -108,11 +114,16 @@
         
         // Check each parameter
         const results = parametersToCheck.map(param => {
-            const value = urlParams.get(param);
+            const value = urlParams.get(param.name);
+            const found = value !== null;
+            const isDesiredState = found === param.shouldBePresent;
+            
             return {
-                name: param,
-                found: value !== null,
-                value: value
+                name: param.name,
+                found: found,
+                value: value,
+                shouldBePresent: param.shouldBePresent,
+                isDesiredState: isDesiredState
             };
         });
         
@@ -120,13 +131,24 @@
         const resultsContainer = document.getElementById('results');
         results.forEach(result => {
             const paramDiv = document.createElement('div');
-            paramDiv.className = `parameter ${result.found ? 'found' : 'not-found'}`;
+            paramDiv.className = `parameter ${result.isDesiredState ? 'found' : 'not-found'}`;
+            
+            let statusText;
+            let statusClass;
+            
+            if (result.shouldBePresent) {
+                statusText = result.found ? 'Found ✓' : 'Missing ✗';
+                statusClass = result.found ? 'found' : 'not-found';
+            } else {
+                statusText = result.found ? 'Present ✗' : 'Clean ✓';
+                statusClass = result.found ? 'not-found' : 'found';
+            }
             
             paramDiv.innerHTML = `
-                <div class="param-name">${result.name}</div>
+                <div class="param-name">${result.name} ${result.shouldBePresent ? '(required)' : '(should be absent)'}</div>
                 <div class="param-value">${result.found ? result.value : 'Not present'}</div>
-                <div class="status ${result.found ? 'found' : 'not-found'}">
-                    ${result.found ? 'Found' : 'Not Found'}
+                <div class="status ${statusClass}">
+                    ${statusText}
                 </div>
             `;
             
@@ -134,17 +156,42 @@
         });
         
         // Generate summary
-        const foundParams = results.filter(r => r.found);
+        const goodParams = results.filter(r => r.isDesiredState);
+        const badParams = results.filter(r => !r.isDesiredState);
         const summaryText = document.getElementById('summaryText');
         
-        if (foundParams.length === 0) {
-            summaryText.innerHTML = `<strong>No target parameters found</strong> in the current URL.`;
-        } else if (foundParams.length === parametersToCheck.length) {
-            summaryText.innerHTML = `<strong>All ${parametersToCheck.length} parameters found!</strong>`;
-        } else {
-            summaryText.innerHTML = `<strong>${foundParams.length} out of ${parametersToCheck.length} parameters found:</strong><br>
-                ${foundParams.map(p => p.name).join(', ')}`;
+        // Find other parameters not in our check list
+        const checkedParamNames = parametersToCheck.map(p => p.name);
+        const otherParams = [];
+        for (const [key, value] of urlParams.entries()) {
+            if (!checkedParamNames.includes(key)) {
+                otherParams.push({ name: key, value: value });
+            }
         }
+        
+        let summaryHTML = '';
+        
+        if (badParams.length === 0) {
+            summaryHTML = `<strong style="color: #4CAF50;">Perfect! ✓</strong><br>
+                All parameters are in their desired state.`;
+        } else {
+            summaryHTML = `<strong style="color: #f44336;">Issues found:</strong><br>
+                ${badParams.map(p => {
+                    if (p.shouldBePresent && !p.found) {
+                        return `Missing required parameter: ${p.name}`;
+                    } else if (!p.shouldBePresent && p.found) {
+                        return `Unwanted parameter present: ${p.name}`;
+                    }
+                }).join('<br>')}`;
+        }
+        
+        // Add other parameters section
+        if (otherParams.length > 0) {
+            summaryHTML += `<br><br><strong>Other parameters found:</strong><br>
+                ${otherParams.map(p => `${p.name} = ${p.value}`).join('<br>')}`;
+        }
+        
+        summaryText.innerHTML = summaryHTML;
         
         // Log results to console for debugging
         console.log('URL Parameter Check Results:', results);
