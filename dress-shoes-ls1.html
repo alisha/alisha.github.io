@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formal Dress Shoes - Shoe Store</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div id="viewContentBtn" class="button-group" style="text-align: center; margin: 50px 0;">
+      <button class="buy-btn" onclick="requestStorageAndShowContent()">View content</button>
+    </div>
+    
+    <div class="product-page" id="mainContent" style="display: none;">
+      <div class="product-image">
+        <div class="placeholder-image">👞</div>
+      </div>
+      
+      <h1 class="product-title">Formal Dress Shoes</h1>
+      
+      <p class="product-description">
+        Elegant leather dress shoes crafted for formal occasions and 
+        professional settings. These premium shoes feature a classic 
+        design with superior craftsmanship, making them the perfect 
+        
+        choice for business meetings, special events, and formal gatherings.
+      </p>
+      
+      <div class="product-price">$10.00</div>
+      
+      <div class="button-group">
+        <a href="https://alisha.github.io/shoes.html?category=permls1" class="back-btn" id="backBtn">← Back to Store</a>
+        <a href="#" class="buy-btn">Add to Cart</a>
+      </div>
+    </div>
+    <div id="statusDisplay"></div>
+  </div>
+  
+  <script>
+    // Function to request storage access and show content
+    function requestStorageAndShowContent() {
+      const statusDiv = document.getElementById('statusDisplay');
+      const viewContentBtn = document.getElementById('viewContentBtn');
+      const mainContent = document.getElementById('mainContent');
+      
+      if (!document.hasStorageAccess) {
+        statusDiv.innerHTML = '<div class="status error">❌ This browser does not support storage access.</div>';
+        return;
+      } else {
+        document.requestStorageAccess().then(
+          () => {
+            statusDiv.innerHTML = '<div class="status success">✅ Storage access enabled! Showing content...</div>';
+          },
+          () => {
+            statusDiv.innerHTML = '<div class="status error">❌ Storage access is blocked.</div>';
+          }
+        );
+      }
+      viewContentBtn.style.display = 'none';
+      mainContent.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+  
