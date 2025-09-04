@@ -57,19 +57,23 @@
       
       if (!document.hasStorageAccess) {
         statusDiv.innerHTML = '<div class="status error">❌ This browser does not support storage access.</div>';
+        viewContentBtn.style.display = 'none';
+        mainContent.style.display = 'block';
         return;
       } else {
         document.requestStorageAccess().then(
         () => {
           statusDiv.innerHTML = '<div class="status success">✅ Storage access enabled! Showing content...</div>';
+          viewContentBtn.style.display = 'none';
+          mainContent.style.display = 'block';
         },
         () => {
           statusDiv.innerHTML = '<div class="status error">❌ Storage access is blocked.</div>';
+          viewContentBtn.style.display = 'none';
+          mainContent.style.display = 'block';
         }
         );
       }
-      viewContentBtn.style.display = 'none';
-      mainContent.style.display = 'block';
     }
   </script>
 </body>
